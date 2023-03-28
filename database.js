@@ -1,36 +1,34 @@
-import dotenv from 'dotenv';
-import mongoose from 'mongoose';
+import dotenv from "dotenv";
+import mongoose from "mongoose";
+import encrypt from "mongoose-encryption";
 dotenv.config();
 
 const mongoPassword = process.env.MONGO_PASSWORD;
-const clusterName = "cluster0"
-const dbName = "whisperDB"
+const clusterName = "cluster0";
+const dbName = "whisperDB";
 const connectionString = `mongodb+srv://admin:${mongoPassword}@${clusterName}.ruawe0b.mongodb.net/${dbName}?retryWrites=true&w=majority`;
-
 
 export async function connectDB() {
   try {
     await mongoose.connect(connectionString, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-    })
-    console.log('connected DB');
-  } catch(err) {
-    console.log('failed to connect DB, error:' + err);
+    });
+    console.log("connected DB");
+  } catch (err) {
+    console.log("failed to connect DB, error:" + err);
   }
 }
 
-const userSchema = {
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    match: /^\S+@\S+\.\S+$/,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-}
+const userSchema = new mongoose.Schema({
+  email: String,
+  password: String,
+});
 
-export const User = new mongoose.model("User", userSchema)
+const secretKey = process.env.ENCRYPTION_KEY
+userSchema.plugin(encrypt, {
+  secret: secretKey,
+  encryptedFields: ["password"],
+});
+
+export const User = new mongoose.model("User", userSchema);
