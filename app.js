@@ -3,6 +3,10 @@ import bodyParser from 'body-parser';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import {connectDB, User} from './database.js'
+import bcrypt from 'bcrypt';
+
+
+
 
 
 const app = express();
@@ -56,14 +60,18 @@ app.get("/register", async(req, res) => {
 app.post("/register", async (req, res) => {
 
   const email = req.body.username
-  const password = req.body.password
+  const typedPassword = req.body.password
+  const saltRounds = 10
+
 
   try {
+    const hash = await bcrypt.hash(typedPassword, saltRounds);
     await User.create({
       email: email,
-      password: password
-    })
-    res.render('secrets')
+      password: hash
+    });
+    res.render('secrets');
+
   } catch(error) {
     console.log(error);
   }
@@ -71,11 +79,12 @@ app.post("/register", async (req, res) => {
 
 app.post("/login", async (req, res) => {
   const email = req.body.username
-  const password = req.body.password
+  const typedPassword = req.body.password
 
   try {
     const user = await User.findOne({email: email})
-    if (user.password === password) {
+    const match = await bcrypt.compare(typedPassword, user.password)
+    if (match) {
       res.render("secrets")
     }
   } catch(error) {

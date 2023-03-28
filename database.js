@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import encrypt from "mongoose-encryption";
+import bcrypt from 'bcrypt';
+export const saltRounds = 10
 dotenv.config();
 
 const mongoPassword = process.env.MONGO_PASSWORD;
@@ -26,9 +27,21 @@ const userSchema = new mongoose.Schema({
 });
 
 const secretKey = process.env.ENCRYPTION_KEY
-userSchema.plugin(encrypt, {
-  secret: secretKey,
-  encryptedFields: ["password"],
-});
+
+export async function hashPasswordWithSalt(password) {
+  try {
+    const hash = await bcrypt.hash(password, saltRounds);
+    return hash;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function checkUser(password, passwordHash) {
+  const match = await bcrypt.compare(password, passwordHash);
+
+}
+
+
 
 export const User = new mongoose.model("User", userSchema);
