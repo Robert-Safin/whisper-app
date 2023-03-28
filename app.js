@@ -2,7 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import connectDB from './database.js'
+import {connectDB, User} from './database.js'
 
 
 const app = express();
@@ -51,3 +51,34 @@ app.get("/register", async(req, res) => {
     console.log(error);
   }
 });
+
+
+app.post("/register", async (req, res) => {
+
+  const email = req.body.username
+  const password = req.body.password
+
+  try {
+    await User.create({
+      email: email,
+      password: password
+    })
+    res.render('secrets')
+  } catch(error) {
+    console.log(error);
+  }
+})
+
+app.post("/login", async (req, res) => {
+  const email = req.body.username
+  const password = req.body.password
+
+  try {
+    const user = await User.findOne({email: email})
+    if (user.password === password) {
+      res.render("secrets")
+    }
+  } catch(error) {
+    console.log(error);
+  }
+})

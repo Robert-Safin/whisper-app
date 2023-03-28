@@ -8,7 +8,7 @@ const dbName = "whisperDB"
 const connectionString = `mongodb+srv://admin:${mongoPassword}@${clusterName}.ruawe0b.mongodb.net/${dbName}?retryWrites=true&w=majority`;
 
 
-async function connectDB() {
+export async function connectDB() {
   try {
     await mongoose.connect(connectionString, {
       useNewUrlParser: true,
@@ -20,6 +20,17 @@ async function connectDB() {
   }
 }
 
+const userSchema = {
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    match: /^\S+@\S+\.\S+$/,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+}
 
-
-export default connectDB
+export const User = new mongoose.model("User", userSchema)
