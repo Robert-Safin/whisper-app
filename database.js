@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import bcrypt from 'bcrypt';
+import passportLocalMongoose from "passport-local-mongoose";
+import passport from "passport";
+
 dotenv.config();
 
 const mongoPassword = process.env.MONGO_PASSWORD;
@@ -21,13 +23,15 @@ export async function connectDB() {
 }
 
 const userSchema = new mongoose.Schema({
-  email: String,
+  username: String,
   password: String,
 });
 
-const secretKey = process.env.ENCRYPTION_KEY
-
-
-
+userSchema.plugin(passportLocalMongoose);
 
 export const User = new mongoose.model("User", userSchema);
+
+passport.use(User.createStrategy());
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
