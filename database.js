@@ -25,6 +25,7 @@ export async function connectDB() {
 const userSchema = new mongoose.Schema({
   username: String,
   password: String,
+  secret: String,
 });
 
 userSchema.plugin(passportLocalMongoose);
