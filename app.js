@@ -86,14 +86,16 @@ app.post(
 
 app.get("/secrets", async (req, res) => {
   try {
-    const foundSecrets = await User.find({"secret": {$ne : null}})
-    res.render('secrets', {foundSecrets : foundSecrets})
-  } catch(error) {
+    const foundSecrets = await User.find({ secret: { $ne: null } });
+    res.render("secrets", { foundSecrets: foundSecrets });
+  } catch (error) {
     console.log(error);
   }
 });
 
-app.post("/login", passport.authenticate("local", {
+app.post(
+  "/login",
+  passport.authenticate("local", {
     successRedirect: "/secrets",
     failureRedirect: "/login",
   })
@@ -105,24 +107,24 @@ app.get("/logout", (req, res) => {
   });
 });
 
-app.get('/submit', (req, res) => {
+app.get("/submit", (req, res) => {
   if (req.isAuthenticated()) {
     res.render("submit");
   } else {
     res.redirect("/login");
   }
-})
+});
 
-app.post('/submit', async (req, res) => {
-  const submittedSecret = req.body.secret
+app.post("/submit", async (req, res) => {
+  const submittedSecret = req.body.secret;
   try {
-    const currentUser = await User.findById(req.user.id)
+    const currentUser = await User.findById(req.user.id);
     if (currentUser) {
-      currentUser.secret = submittedSecret
-      currentUser.save()
-      res.redirect('/secrets')
+      currentUser.secret = submittedSecret;
+      currentUser.save();
+      res.redirect("/secrets");
     }
-  } catch(error) {
+  } catch (error) {
     console.log(error);
   }
-})
+});
